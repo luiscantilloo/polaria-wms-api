@@ -1,0 +1,90 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum WmsRol {
+  configurador
+  administrador_cuenta
+  operador_cuenta
+  administrador_bodega
+  jefe_bodega
+  custodio
+  operario
+  procesador
+  transportista
+
+  @@map("wms_rol")
+}
+
+enum RolNivel {
+  plataforma
+  cuenta
+  bodega
+
+  @@map("rol_nivel")
+}
+
+model Rol {
+  idRol         WmsRol   @id @map("id_rol")
+  nombre        String   @db.VarChar(255)
+  nivel         RolNivel
+  puedeCrearRol WmsRol?  @map("puede_crear_rol")
+  descripcion   String?
+  usuarios      Usuario[]
+
+  @@map("rol")
+}
+
+model Empresa {
+  codigoEmpresa String    @id @map("codigo_empresa") @db.VarChar(32)
+  razonSocial   String    @map("razon_social") @db.VarChar(255)
+  estaActiva    Boolean   @default(true) @map("esta_activa")
+  idCreador     String?   @map("id_creador") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  usuarios      Usuario[]
+  cuentas       Cuenta[]
+
+  @@map("empresa")
+}
+
+model Cuenta {
+  codigoCuenta    String   @id @map("codigo_cuenta") @db.VarChar(32)
+  codigoEmpresa   String   @map("codigo_empresa") @db.VarChar(32)
+  nombreComercial String   @map("nombre_comercial") @db.VarChar(255)
+  estaActiva      Boolean  @default(true) @map("esta_activa")
+  idCreador       String?  @map("id_creador") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  empresa         Empresa  @relation(fields: [codigoEmpresa], references: [codigoEmpresa])
+  usuarios        Usuario[]
+
+  @@map("cuenta")
+}
+
+model Usuario {
+  idUsuario     String   @id @default(dbgenerated("gen_random_uuid()")) @map("id_usuario") @db.Uuid
+  idAuth        String   @unique @map("id_auth") @db.Uuid
+  idRol         WmsRol   @map("id_rol")
+  codigoEmpresa String?  @map("codigo_empresa") @db.VarChar(32)
+  codigoCuenta  String?  @map("codigo_cuenta") @db.VarChar(32)
+  idCreador     String?  @map("id_creador") @db.Uuid
+  nombre        String   @db.VarChar(255)
+  username      String   @unique
+  correo        String   @unique
+  estaActivo    Boolean  @default(true) @map("esta_activo")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rol     Rol      @relation(fields: [idRol], references: [idRol])
+  empresa Empresa? @relation(fields: [codigoEmpresa], references: [codigoEmpresa])
+  cuenta  Cuenta?  @relation(fields: [codigoCuenta], references: [codigoCuenta])
+
+  @@map("usuario")
+}
