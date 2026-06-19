@@ -9,8 +9,10 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiHeader,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
@@ -34,6 +36,10 @@ import {
 } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { MateoExchangeDto } from './dto/mateo-exchange.dto';
+import {
+  MateoExchangeResponseDto,
+  MateoHandoffResponseDto,
+} from './dto/mateo-response.dto';
 import { PreloginDto } from './dto/prelogin.dto';
 import type {
   LoginResponse,
@@ -53,7 +59,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Validar identidad y contexto',
     description:
-      'Valida identidad y contexto (platform/tenant) antes de solicitar contrase?a.',
+      'Valida identidad y contexto (platform/tenant) antes de solicitar contrase?a. Con `X-Auth-Client: wms` el identificador debe ser correo; con `mateo`, username.',
   })
   @ApiHeader({
     name: AUTH_CLIENT_HEADER,
@@ -77,7 +83,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Iniciar sesi?n',
     description:
-      'Autentica con Supabase Auth tras repetir las validaciones de prelogin.',
+      'Autentica con Supabase Auth tras repetir las validaciones de prelogin. Con `X-Auth-Client: wms` el identificador debe ser correo; con `mateo`, username.',
   })
   @ApiHeader({
     name: AUTH_CLIENT_HEADER,
@@ -104,17 +110,11 @@ export class AuthController {
   @ApiOperation({
     summary: 'Generar c?digo SSO para Mateo',
     description:
-      'Usuario autenticado en WMS obtiene un c?digo de un solo uso (TTL 60s) para entrar a Mateo sin contrase?a.',
+      'Usuario autenticado en WMS obtiene un c?digo JWT de un solo uso (TTL 60s) para entrar a Mateo sin contrase?a. El chatbot canjea el c?digo en POST /auth/mateo-exchange.',
   })
-  @ApiOkResponse({
-    schema: {
-      example: {
-        code: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        expiresIn: 60,
-      },
-    },
-  })
+  @ApiOkResponse({ type: MateoHandoffResponseDto })
   @ApiUnauthorizedResponse({ description: 'Token ausente o inv?lido' })
+  @ApiNotFoundResponse({ description: 'Usuario no encontrado o inactivo' })
   createMateoHandoff(
     @CurrentSupabaseUser() user: User,
   ): Promise<MateoHandoffResponse> {
@@ -126,29 +126,14 @@ export class AuthController {
   @ApiOperation({
     summary: 'Canjear c?digo SSO de Mateo',
     description:
-      'Intercambia el c?digo de handoff por tokens Supabase y perfil de usuario.',
+      'Intercambia el c?digo JWT obtenido en mateo-handoff por tokens Supabase y perfil de usuario. Endpoint p?blico; el c?digo es de un solo uso y expira en 60 segundos.',
   })
-  @ApiOkResponse({
-    schema: {
-      example: {
-        accessToken: 'eyJ...',
-        refreshToken: 'v1...',
-        user: {
-          idUsuario: 'uuid',
-          username: 'usuario',
-          nombre: 'Nombre',
-          correo: 'user@empresa.com',
-          nombreRol: 'Administrador de cuenta',
-          codigoEmpresa: 'EMP001',
-          codigoCuenta: null,
-          scope: 'tenant',
-        },
-      },
-    },
-  })
+  @ApiBody({ type: MateoExchangeDto })
+  @ApiOkResponse({ type: MateoExchangeResponseDto })
   @ApiUnauthorizedResponse({
     description: 'C?digo inv?lido, expirado o ya utilizado',
   })
+  @ApiNotFoundResponse({ description: 'Usuario no encontrado o inactivo' })
   exchangeMateoCode(
     @Body() dto: MateoExchangeDto,
   ): Promise<MateoExchangeResponse> {

@@ -35,7 +35,9 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Polaria WMS API')
     .setDescription(
-      'API backend del sistema de gestión de almacenes (WMS) de Polaria.',
+      'API backend del sistema de gestión de almacenes (WMS) de Polaria. ' +
+        'Incluye integración con chatbot Mateo (handoff SSO y login por cliente). ' +
+        'Header opcional `X-Auth-Client`: `wms` (correo) | `mateo` (username).',
     )
     .setVersion('0.0.1')
     .addBearerAuth(
