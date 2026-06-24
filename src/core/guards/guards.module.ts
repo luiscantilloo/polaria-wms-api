@@ -4,6 +4,7 @@ import { RequireTenantContextInterceptor } from '../interceptors/require-tenant-
 import { TenantModule } from '../tenant/tenant.module';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
+import { SensitiveWriteGuard } from './sensitive-write.guard';
 import { TenantGuard } from './tenant.guard';
 
 @Global()
@@ -13,11 +14,12 @@ import { TenantGuard } from './tenant.guard';
     JwtAuthGuard,
     RolesGuard,
     TenantGuard,
+    SensitiveWriteGuard,
     {
       provide: APP_INTERCEPTOR,
       useClass: RequireTenantContextInterceptor,
     },
   ],
-  exports: [JwtAuthGuard, RolesGuard, TenantGuard, TenantModule],
+  exports: [JwtAuthGuard, RolesGuard, TenantGuard, SensitiveWriteGuard, TenantModule],
 })
 export class GuardsModule {}

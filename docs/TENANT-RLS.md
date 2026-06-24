@@ -61,9 +61,73 @@ Toda tabla operativa nueva debe incluir:
 
 Modelos Prisma alineados: `Bodega`, `AsignacionBodega` (`prisma/schema.prisma`).
 
+## Patrón de escritura sensible
+
+Escrituras de inventario, contadores y `warehouse_state` (POL-33) **solo** por endpoints NestJS protegidos con:
+
+```typescript
+@UseGuards(JwtAuthGuard, TenantGuard, SensitiveWriteGuard)
+@RequireTenantContext()
+```
+
+### Flujo del servicio (pseudocódigo)
+
+```typescript
+async registrarMovimiento(
+  ctx: TenantContext,
+  dto: { codigoCuenta: string; idBodega: string; sku: string; cantidad: number },
+) {
+  // 1. Validar scope: nunca confiar en codigoCuenta/idBodega del body sin cruzar con ctx
+  assertOperationalTenantScope(ctx, {
+    codigoCuenta: dto.codigoCuenta,
+    idBodega: dto.idBodega,
+  });
+
+  return this.prisma.$transaction(async (tx) => {
+    // 2. Lecturas/updates acotados por tenant (Prisma bypass RLS)
+    const estado = await tx.warehouseState.findFirst({
+      where: applyTenantFilter(
+        { codigoCuenta: dto.codigoCuenta, idBodega: dto.idBodega, sku: dto.sku },
+        ctx,
+      ),
+    });
+
+    // 3. Lógica de negocio + escritura
+    // await tx.inventoryMovement.create({ ... });
+
+    // 4. Auditoría (placeholder POL-33)
+    // await this.auditService.registrar({
+    //   idUsuario: ctx.idUsuario,
+    //   accion: 'inventory.movement',
+    //   codigoCuenta: dto.codigoCuenta,
+    //   idBodega: dto.idBodega,
+    //   metadata: { sku: dto.sku, cantidad: dto.cantidad },
+    // });
+
+    return estado;
+  });
+}
+```
+
+### Utilidades disponibles
+
+| Artefacto | Ubicación | Uso |
+|-----------|-----------|-----|
+| `applyTenantFilter(where, ctx)` | `core/database/tenant-scope.util.ts` | Fusiona `codigoCuenta` / `idBodega` en `where` de Prisma |
+| `assertOperationalTenantScope(ctx, payload)` | idem | Lanza `403` si el body trae tenant ajeno |
+| `TenantScopedRepository` | `core/database/tenant-scoped.repository.ts` | Base para repos POL-33 |
+| `SensitiveWriteGuard` | `core/guards/sensitive-write.guard.ts` | Solo `configurador`, `administrador_bodega`, `jefe_bodega` |
+| `PERMISSION` / `ROLE_PERMISSIONS` | `shared/constants/permissions.ts` | Matriz mínima documentada |
+| `ROLES_ESCRITURA_INVENTARIO` | `shared/constants/roles.ts` | Roles con escritura inventario |
+
+### Regla de oro
+
+Los campos `codigoCuenta` e `idBodega` del request son **hints operativos**, no prueba de autorización. La autorización viene de `TenantContext` (JWT + guards) y de `assertOperationalTenantScope`.
+
 ## Próximos pasos (fuera de este ticket)
 
-- Guards/interceptors NestJS que extraigan tenant del JWT y validen antes de Prisma.
+- ~~Guards/interceptors NestJS que extraigan tenant del JWT y validen antes de Prisma.~~ (POL-2 guards implementados)
+- Módulos operativos POL-33 consumiendo `TenantScopedRepository` + `SensitiveWriteGuard`.
 - REVOKE explícito de INSERT/UPDATE/DELETE en tablas sensibles para `authenticated` (patrón `warehouse_state` en POL-33).
 
 ## Referencias
