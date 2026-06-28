@@ -115,6 +115,35 @@ describe('AdministracionUsuariosController (e2e)', () => {
       .expect(400);
   });
 
+  it('POST /administracion/usuarios responde 201 sin idRol (default operador_cuenta)', async () => {
+    usuariosService.create.mockResolvedValue({
+      idUsuario: 'usr-new',
+      username: 'operador.c1',
+      nombre: 'Operador',
+      idRol: WmsRol.operador_cuenta,
+      codigoCuenta: 'CTA001',
+      correo: 'operador@test.com',
+    });
+
+    await request(app.getHttpServer())
+      .post('/administracion/usuarios')
+      .set('Authorization', 'Bearer admin-token')
+      .send({
+        username: 'operador.c1',
+        nombre: 'Operador',
+        correo: 'operador@test.com',
+        password: 'secret1',
+      })
+      .expect(201);
+
+    expect(usuariosService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        idRol: WmsRol.operador_cuenta,
+      }),
+      adminContext,
+    );
+  });
+
   it('POST /administracion/usuarios responde 201 para administrador_cuenta', async () => {
     usuariosService.create.mockResolvedValue({
       idUsuario: 'usr-new',

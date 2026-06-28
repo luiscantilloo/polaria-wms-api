@@ -21,9 +21,15 @@ export class CreateAdministracionUsuarioDto {
   @IsNotEmpty()
   nombre!: string;
 
-  @ApiProperty({ enum: WmsRol, example: WmsRol.operario })
+  @ApiPropertyOptional({
+    enum: WmsRol,
+    example: WmsRol.operador_cuenta,
+    description:
+      'Opcional. Por defecto operador_cuenta cuando el admin asigna usuarios de cuenta.',
+  })
+  @IsOptional()
   @IsEnum(WmsRol)
-  idRol!: WmsRol;
+  idRol?: WmsRol;
 
   @ApiPropertyOptional({
     example: '550e8400-e29b-41d4-a716-446655440000',

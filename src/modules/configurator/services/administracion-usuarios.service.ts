@@ -34,16 +34,16 @@ export class AdministracionUsuariosService {
       );
     }
 
-    if (dto.idRol === WmsRol.configurador) {
+    const idRol = dto.idRol ?? WmsRol.operador_cuenta;
+
+    if (idRol === WmsRol.configurador) {
       throw new BadRequestException(
         'No se puede crear un usuario configurador desde este endpoint',
       );
     }
 
     if (
-      !(ROLES_PERMITIDOS_ADMINISTRACION as readonly WmsRol[]).includes(
-        dto.idRol,
-      )
+      !(ROLES_PERMITIDOS_ADMINISTRACION as readonly WmsRol[]).includes(idRol)
     ) {
       throw new BadRequestException(
         'Rol no permitido para administración de cuenta',
@@ -54,7 +54,7 @@ export class AdministracionUsuariosService {
       {
         username: dto.username,
         nombre: dto.nombre,
-        idRol: dto.idRol,
+        idRol,
         codigoEmpresa: ctx.codigoEmpresa,
         codigoCuenta: ctx.codigoCuenta,
         idBodega: dto.idBodega,
