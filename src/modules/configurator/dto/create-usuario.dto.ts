@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   MinLength,
 } from 'class-validator';
 import { WmsRol } from '../../../generated/prisma/client';
@@ -40,7 +39,8 @@ export class CreateUsuarioDto {
     description: 'Obligatorio para roles de nivel bodega',
   })
   @IsOptional()
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   idBodega?: string;
 
   @ApiProperty({ example: 'operario@empresa.com' })
