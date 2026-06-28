@@ -9,6 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { WmsRol } from '../../../generated/prisma/client';
 import { TenantCtx } from '../../../core/decorators/tenant-context.decorator';
+import { SWAGGER_TAGS } from '../../../core/swagger/swagger.constants';
 import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { Roles } from '../../../core/guards/roles.decorator';
 import { RolesGuard } from '../../../core/guards/roles.guard';
@@ -19,7 +20,7 @@ import { CreateUsuarioResponseDto } from '../dto/create-usuario-response.dto';
 import type { CreateUsuarioResponse } from '../interfaces/usuarios.interfaces';
 import { AdministracionUsuariosService } from '../services/administracion-usuarios.service';
 
-@ApiTags('Administración')
+@ApiTags(SWAGGER_TAGS.USUARIOS_ADMIN_CUENTA)
 @Controller('administracion/usuarios')
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
 @Roles(WmsRol.administrador_cuenta)
