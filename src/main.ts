@@ -1,9 +1,9 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './core/filters/global-exception.filter';
+import { setupSwagger } from './core/swagger/setup-swagger';
 import { AUTH_CLIENT_HEADER } from './shared/constants/auth-client.constants';
 
 async function bootstrap() {
@@ -32,27 +32,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Polaria WMS API')
-    .setDescription(
-      'API backend del sistema de gestión de almacenes (WMS) de Polaria. ' +
-        'Incluye integración con chatbot Mateo (handoff SSO y login por cliente). ' +
-        'Header opcional `X-Auth-Client`: `wms` (correo) | `mateo` (username).',
-    )
-    .setVersion('0.0.1')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Token JWT obtenido en POST /auth/login',
-      },
-      'access-token',
-    )
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  setupSwagger(app);
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }

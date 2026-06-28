@@ -44,6 +44,7 @@ import {
   MateoHandoffResponseDto,
 } from './dto/mateo-response.dto';
 import { PreloginDto } from './dto/prelogin.dto';
+import { SWAGGER_TAGS } from '../../core/swagger/swagger.constants';
 import type {
   LoginResponse,
   MateoExchangeResponse,
@@ -52,7 +53,7 @@ import type {
   PreloginResponse,
 } from './interfaces/auth.interfaces';
 
-@ApiTags('Auth')
+@ApiTags(SWAGGER_TAGS.AUTH)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
