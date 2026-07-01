@@ -43,16 +43,20 @@ Modal → POST /compras/ordenes (Nest)
 
 ## Aplicar patch web
 
-Requiere tener ya telefono/proveedor/webhook si aplica en tu rama.
+**Requisito:** tener ya aplicados teléfono/proveedor y webhook n8n en tu `main`.
+
+Usá el patch **solo orden de compra** (no el bundle viejo que incluía webhook):
 
 ```powershell
 cd C:\Users\...\Videos\polaria-wms-web
 
-Invoke-WebRequest `
-  -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/orden-compra-frio-ui-d2d9/docs/patch-orden-compra-frio-ui-d2d9-web.patch" `
-  -OutFile "patch-orden-compra-frio-ui-d2d9-web.patch"
+git am --abort
 
-git am patch-orden-compra-frio-ui-d2d9-web.patch
+Invoke-WebRequest `
+  -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/orden-compra-frio-ui-d2d9/docs/patch-orden-compra-frio-ui-only-d2d9-web.patch" `
+  -OutFile "patch-orden-compra-frio-ui-only-d2d9-web.patch"
+
+git am patch-orden-compra-frio-ui-only-d2d9-web.patch
 npm test
 ```
 
