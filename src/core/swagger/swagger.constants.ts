@@ -29,7 +29,7 @@ export const SWAGGER_TAG_DESCRIPTIONS: Record<SwaggerTag, string> = {
   [SWAGGER_TAGS.USUARIOS_ADMIN_CUENTA]:
     'Alta de usuarios dentro del tenant activo. Rol requerido: administrador_cuenta (scope cuenta).',
   [SWAGGER_TAGS.CONFIGURACION_BODEGAS]:
-    'Layout operativo de bodegas internas (tipos, zonas, slots). Roles: configurador o administrador_cuenta.',
+    'Alta de bodegas internas/externas y bootstrap de layout (tipos, zonas, slots). Roles: configurador o administrador_cuenta.',
   [SWAGGER_TAGS.COMPRAS_SOL]:
     'Solicitudes de compra (SOL): borrador, aprobación y ciclo de estados por tenant.',
   [SWAGGER_TAGS.COMPRAS_OC]:

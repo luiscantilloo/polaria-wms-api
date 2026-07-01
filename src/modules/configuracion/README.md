@@ -1,6 +1,44 @@
 # Módulo Configuración
 
-Endpoints de configuración operativa del tenant (layout de bodegas, etc.).
+Endpoints de configuración operativa del tenant (alta de bodegas, layout, etc.).
+
+## POST /configuracion/bodegas
+
+Crea una bodega **interna** o **externa** vía backend (Prisma, bypass RLS).
+
+### Autorización
+
+- Bearer JWT (Supabase)
+- `JwtAuthGuard` + `TenantGuard` + `RolesGuard`
+- Roles: `configurador` (cualquier cuenta) | `administrador_cuenta` (solo su `codigoCuenta`)
+
+### Body
+
+| Campo | Tipo | Obligatorio | Descripción |
+|-------|------|-------------|-------------|
+| `codigoCuenta` | string | Configurador sí; admin no (usa JWT) | Cuenta destino |
+| `codigo` | string | Sí | Código único dentro de la cuenta |
+| `nombre` | string | Sí | Nombre visible |
+| `tipo` | `interna` \| `externa` | Sí | Tipo de bodega |
+| `capacidadSlots` | int 1–500 | Interna sí; externa opcional | Capacidad de slots |
+
+### Response 201
+
+```json
+{
+  "idBodega": "550e8400-e29b-41d4-a716-446655440000",
+  "codigoCuenta": "CTA001",
+  "codigo": "BOD-CENTRAL",
+  "nombre": "Bodega Central",
+  "tipo": "interna",
+  "capacidadSlots": 50
+}
+```
+
+### Flujo recomendado (bodega interna)
+
+1. `POST /configuracion/bodegas` — crea la fila en `bodega`
+2. `POST /configuracion/bodegas/:idBodega/bootstrap-layout` — genera layout operativo
 
 ## POST /configuracion/bodegas/:idBodega/bootstrap-layout
 
