@@ -51,16 +51,25 @@ SOLICITUD_COMPRA_WEBHOOK_URL=https://polariatech.app.n8n.cloud/webhook-test/soli
 
 ## Aplicar patch web
 
+**Requisito:** tener ya aplicado el patch de teléfono/proveedor en solicitud (`patch-telefono-proveedor-solicitud-d2d9-web.patch`).
+
+Si `git am` del webhook falló en `SolicitudCompraCreateModal.tsx`, usá el patch **v2** (armado sobre telefono+proveedor):
+
 ```powershell
 cd C:\Users\...\Videos\polaria-wms-web
-git checkout main
-git pull
 
+# 1) Limpiar el git am fallido
+git am --abort
+
+# 2) Verificar que tenés telefono/proveedor (debe existir selector de proveedor en el modal)
+git log --oneline -3
+
+# 3) Descargar y aplicar webhook v2
 Invoke-WebRequest `
-  -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/solicitud-compra-webhook-n8n-d2d9/docs/patch-solicitud-compra-webhook-n8n-d2d9-web.patch" `
-  -OutFile "patch-solicitud-compra-webhook-n8n-d2d9-web.patch"
+  -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/solicitud-compra-webhook-n8n-d2d9/docs/patch-solicitud-compra-webhook-n8n-d2d9-web-v2.patch" `
+  -OutFile "patch-solicitud-compra-webhook-n8n-d2d9-web-v2.patch"
 
-git am patch-solicitud-compra-webhook-n8n-d2d9-web.patch
+git am patch-solicitud-compra-webhook-n8n-d2d9-web-v2.patch
 npm test
 ```
 
