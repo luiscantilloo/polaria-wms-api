@@ -1,5 +1,7 @@
---- b/src/modules/configurator/services/bodegas-externas.service.ts	2026-07-02 00:26:44.576771795 +0000
-+++ a/src/modules/configurator/services/bodegas-externas.service.ts	2026-07-02 00:26:54.228950839 +0000
+diff --git a/src/modules/configurator/services/bodegas-externas.service.ts b/src/modules/configurator/services/bodegas-externas.service.ts
+index c872933..eb227e4 100644
+--- a/src/modules/configurator/services/bodegas-externas.service.ts
++++ b/src/modules/configurator/services/bodegas-externas.service.ts
 @@ -1,10 +1,11 @@
  import {
    DEFAULT_LIST_LIMIT,
@@ -13,7 +15,7 @@
  
  export interface BodegaExternaListRow {
    idBodega: string;
-@@ -149,29 +150,26 @@
+@@ -149,29 +150,26 @@ export async function createBodegaExternaConfigurator(
      input.codigoCuenta,
    );
  
@@ -60,8 +62,10 @@
      nombre,
      capacidad: Math.trunc(input.capacidad),
      bodegaAsignada: nombreComercial,
---- b/src/modules/configurator/services/bodegas-internas.service.ts	2026-07-02 00:26:44.512770589 +0000
-+++ a/src/modules/configurator/services/bodegas-internas.service.ts	2026-07-02 00:26:54.740960178 +0000
+diff --git a/src/modules/configurator/services/bodegas-internas.service.ts b/src/modules/configurator/services/bodegas-internas.service.ts
+index 86fb7f1..c1de8e6 100644
+--- a/src/modules/configurator/services/bodegas-internas.service.ts
++++ b/src/modules/configurator/services/bodegas-internas.service.ts
 @@ -1,6 +1,5 @@
  import {
    DEFAULT_LIST_LIMIT,
@@ -69,7 +73,7 @@
    runDomainQuery,
  } from "@/lib/supabase/domain-query";
  import { DomainServiceError } from "@/lib/domain-service-error";
-@@ -189,28 +188,26 @@
+@@ -189,28 +188,26 @@ export async function createBodegaInternaConfigurator(
    const { codigoCuenta, codigoEmpresa, nombreComercial } =
      await resolveCuentaAsignada(input.codigoCuenta);
  

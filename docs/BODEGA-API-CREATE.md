@@ -14,35 +14,40 @@ El web insertaba directo en Supabase. El API Nest escribe con Prisma (bypass RLS
 
 ---
 
-## Descargar y aplicar (Windows / PowerShell)
+## Descargar cambios en el WEB (usa esto, no el patch)
 
-Desde `polaria-wms-web`:
+El patch suele fallar en Windows. **Copia los 2 archivos completos:**
 
 ```powershell
 cd C:\Users\Daniel\Videos\polaria-wms-web
 
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/patch-bodega-api-create-d2d9-web.patch" -OutFile "bodega-api.patch"
+$base = "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/web-bodega-api-files"
 
-git apply --3way bodega-api.patch
+Invoke-WebRequest -Uri "$base/bodegas-internas.service.ts" -OutFile "src/modules/configurator/services/bodegas-internas.service.ts"
+
+Invoke-WebRequest -Uri "$base/bodegas-externas.service.ts" -OutFile "src/modules/configurator/services/bodegas-externas.service.ts"
 ```
 
-Si `git apply` falla, usa **opción B** (copiar archivos completos) abajo.
-
-### Opción B — copiar archivos completos (más fácil)
-
-Descarga y reemplaza estos 2 archivos en tu repo web:
-
-| Descargar | Pegar en tu repo |
-|-----------|------------------|
-| [bodegas-internas.service.ts](https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/web-bodega-api-files/bodegas-internas.service.ts) | `src/modules/configurator/services/bodegas-internas.service.ts` |
-| [bodegas-externas.service.ts](https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/web-bodega-api-files/bodegas-externas.service.ts) | `src/modules/configurator/services/bodegas-externas.service.ts` |
-
-PowerShell:
+Verifica que el cambio quedó (debe mostrar `/configuracion/bodegas`, NO `runDomainMutation`):
 
 ```powershell
-$base = "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/web-bodega-api-files"
-Invoke-WebRequest -Uri "$base/bodegas-internas.service.ts" -OutFile "src/modules/configurator/services/bodegas-internas.service.ts"
-Invoke-WebRequest -Uri "$base/bodegas-externas.service.ts" -OutFile "src/modules/configurator/services/bodegas-externas.service.ts"
+Select-String -Path "src/modules/configurator/services/bodegas-internas.service.ts" -Pattern "configuracion/bodegas"
+```
+
+Si no aparece nada, el archivo no se reemplazó bien.
+
+| Archivo en tu repo |
+|--------------------|
+| `src/modules/configurator/services/bodegas-internas.service.ts` |
+| `src/modules/configurator/services/bodegas-externas.service.ts` |
+
+### Patch (opcional, a menudo falla en Windows)
+
+Solo si prefieres patch: descarga de nuevo y aplica. Formato `git diff` corregido:
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PolariaTech/polaria-wms-api/cursor/bodega-api-create-d2d9/docs/patch-bodega-api-create-d2d9-web.patch" -OutFile "bodega-api.patch"
+git apply bodega-api.patch
 ```
 
 ---
