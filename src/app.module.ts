@@ -8,6 +8,7 @@ import { DatabaseModule } from './core/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfiguratorModule } from './modules/configurator/configurator.module';
 import { ConfiguracionModule } from './modules/configuracion/configuracion.module';
+import { IntegrationModule } from './modules/integration/integration.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
     AuthModule,
     ConfiguratorModule,
     ConfiguracionModule,
+    IntegrationModule,
     PurchasesModule,
   ],
   controllers: [AppController],
